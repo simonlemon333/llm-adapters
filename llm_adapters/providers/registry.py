@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 # Built-in provider factories (lazy imports to avoid loading all adapters upfront)
 _BUILTIN_PROVIDERS: dict[str, str] = {
     "openai": "llm_adapters.providers.openai.OpenAIProvider",
+    "openai-responses": "llm_adapters.providers.openai_responses.OpenAIResponsesProvider",
     "anthropic": "llm_adapters.providers.anthropic.AnthropicProvider",
     "deepseek": "llm_adapters.providers.deepseek.DeepSeekProvider",
     "ollama": "llm_adapters.providers.ollama.OllamaProvider",
