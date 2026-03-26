@@ -26,5 +26,5 @@ class BaseLLMProvider(ABC):
         """Send a chat request and yield streaming deltas."""
         ...  # pragma: no cover
 
-    async def close(self) -> None:
+    async def close(self) -> None:  # noqa: B027
         """Clean up resources. Override if your adapter holds a persistent client."""

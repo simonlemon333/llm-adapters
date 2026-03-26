@@ -2,16 +2,14 @@
 
 import json
 
-import httpx
 import pytest
 
 from llm_adapters.config import ProviderConfig
 from llm_adapters.exceptions import AuthenticationError, RateLimitError
 from llm_adapters.models import ChatRequest, Message, Role
-from llm_adapters.providers.openai import OpenAIProvider
 from llm_adapters.providers.anthropic import AnthropicProvider
 from llm_adapters.providers.ollama import OllamaProvider
-
+from llm_adapters.providers.openai import OpenAIProvider
 
 # --- Fixtures ---
 

@@ -7,7 +7,7 @@ import logging
 from collections.abc import Awaitable, Callable
 from typing import TypeVar
 
-from llm_adapters.exceptions import LLMError, RateLimitError
+from llm_adapters.exceptions import RateLimitError
 
 logger = logging.getLogger(__name__)
 
