@@ -13,7 +13,7 @@ Built as a lightweight alternative to LiteLLM after the [March 2026 PyPI supply 
 ## Install
 
 ```bash
-pip install llm-adapters
+pip install llm-dial
 ```
 
 ## Quick Start

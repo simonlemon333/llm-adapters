@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "llm-adapters"
+name = "llm-dial"
 version = "0.1.0"
 description = "A minimal, auditable Python library for calling multiple LLM providers. Lightweight LiteLLM alternative."
 readme = "README.md"
@@ -48,7 +48,7 @@ Repository = "https://github.com/simonlemon333/llm-adapters"
 Issues = "https://github.com/simonlemon333/llm-adapters/issues"
 
 [project.scripts]
-llm-adapters = "llm_adapters.cli:main"
+llm-dial = "llm_adapters.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["llm_adapters"]
