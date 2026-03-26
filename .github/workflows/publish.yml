@@ -97,13 +97,15 @@ jobs:
       - name: Generate SHA-256 hashes
         run: |
           echo "=== Package hashes ==="
-          sha256sum dist/* | tee dist/SHA256SUMS.txt
+          sha256sum dist/*
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: dist
-          path: dist/
+          path: |
+            dist/*.whl
+            dist/*.tar.gz
 
   # Run tests on the built package (not source) to catch packaging issues
   test-built:
