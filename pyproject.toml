@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "llm-dial"
-version = "0.1.0"
+version = "0.1.1"
 description = "A minimal, auditable Python library for calling multiple LLM providers. Lightweight LiteLLM alternative."
 readme = "README.md"
 license = "MIT"
