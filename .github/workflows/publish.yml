@@ -27,22 +27,65 @@ jobs:
       - name: Build package
         run: python -m build
 
-      # --- Anti-.pth attack: scan the built package ---
-      - name: Security scan — reject .pth files
+      # --- Anti-.pth attack: deep scan ---
+      - name: Security scan — unpack and reject .pth files
         run: |
-          echo "Scanning dist/ for .pth files..."
-          if find dist/ -name "*.pth" | grep -q .; then
-            echo "ABORT: .pth file detected in package!"
-            find dist/ -name "*.pth" -ls
+          echo "=== Scanning wheel contents ==="
+          mkdir -p /tmp/wheel-inspect
+          cd /tmp/wheel-inspect
+          python -m zipfile -e $GITHUB_WORKSPACE/dist/*.whl .
+
+          # Check for .pth files INSIDE the wheel (this is how LiteLLM was attacked)
+          if find . -name "*.pth" | grep -q .; then
+            echo "ABORT: .pth file found inside wheel!"
+            find . -name "*.pth" -ls
             exit 1
           fi
-          echo "No .pth files found"
 
-      - name: Security scan — list package contents
+          # Check for suspicious scripts that run on install
+          if find . -name "*.py" -path "*/.data/scripts/*" | grep -q .; then
+            echo "WARNING: Custom install scripts found:"
+            find . -name "*.py" -path "*/.data/scripts/*" -ls
+          fi
+
+          echo "No .pth files found inside wheel"
+
+      - name: Security scan — verify only expected files in wheel
         run: |
           echo "=== Wheel contents ==="
-          python -m zipfile -l dist/*.whl
-          echo ""
+          python -c "
+          import zipfile, sys
+          whl = list(__import__('pathlib').Path('dist').glob('*.whl'))[0]
+          with zipfile.ZipFile(whl) as z:
+              for f in sorted(z.namelist()):
+                  # Flag anything that's not .py, .pyi, py.typed, or metadata
+                  suspicious = not any(f.endswith(ext) for ext in
+                      ('.py', '.pyi', '.typed', '.txt', '.md', '.toml',
+                       'METADATA', 'WHEEL', 'RECORD', 'entry_points.txt', 'top_level.txt'))
+                  flag = ' <<< UNEXPECTED' if suspicious and not f.endswith('/') else ''
+                  print(f'  {f}{flag}')
+          "
+
+      - name: Security scan — check entry_points for hijacking
+        run: |
+          python -c "
+          import zipfile, configparser, io
+          whl = list(__import__('pathlib').Path('dist').glob('*.whl'))[0]
+          with zipfile.ZipFile(whl) as z:
+              for name in z.namelist():
+                  if name.endswith('entry_points.txt'):
+                      content = z.read(name).decode()
+                      print('entry_points.txt:')
+                      print(content)
+                      # Only our own entry point should exist
+                      if 'llm_adapters' not in content and content.strip():
+                          print('ABORT: Unexpected entry points detected!')
+                          raise SystemExit(1)
+          print('Entry points OK')
+          "
+
+      - name: Security scan — sdist contents
+        run: |
           echo "=== Sdist contents ==="
           tar tzf dist/*.tar.gz
 
@@ -50,6 +93,11 @@ jobs:
         run: |
           pip install twine
           twine check dist/*
+
+      - name: Generate SHA-256 hashes
+        run: |
+          echo "=== Package hashes ==="
+          sha256sum dist/* | tee dist/SHA256SUMS.txt
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
