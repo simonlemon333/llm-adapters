@@ -29,13 +29,13 @@ class OllamaProvider(BaseLLMProvider):
             timeout=config.timeout,
         )
 
-    def _build_payload(self, request: ChatRequest, stream: bool = False) -> dict:
-        payload: dict = {
+    def _build_payload(self, request: ChatRequest, stream: bool = False) -> dict[str, object]:
+        payload: dict[str, object] = {
             "model": request.model,
             "messages": [{"role": m.role.value, "content": m.content} for m in request.messages],
             "stream": stream,
         }
-        options: dict = {}
+        options: dict[str, object] = {}
         if request.temperature is not None:
             options["temperature"] = request.temperature
         if request.top_p is not None:

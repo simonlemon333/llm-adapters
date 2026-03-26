@@ -22,7 +22,7 @@ class BaseLLMProvider(ABC):
         """Send a chat request and return the full response."""
 
     @abstractmethod
-    async def chat_stream(self, request: ChatRequest) -> AsyncIterator[StreamDelta]:
+    def chat_stream(self, request: ChatRequest) -> AsyncIterator[StreamDelta]:
         """Send a chat request and yield streaming deltas."""
         ...  # pragma: no cover
 

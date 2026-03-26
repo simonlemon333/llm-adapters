@@ -40,17 +40,17 @@ class AnthropicProvider(BaseLLMProvider):
             },
         )
 
-    def _build_payload(self, request: ChatRequest, stream: bool = False) -> dict:
+    def _build_payload(self, request: ChatRequest, stream: bool = False) -> dict[str, object]:
         # Anthropic separates system message from the messages array
         system_text = ""
-        messages = []
+        messages: list[dict[str, str]] = []
         for m in request.messages:
             if m.role == Role.SYSTEM:
                 system_text = m.content
             else:
                 messages.append({"role": m.role.value, "content": m.content})
 
-        payload: dict = {
+        payload: dict[str, object] = {
             "model": request.model,
             "messages": messages,
             "max_tokens": request.max_tokens or 4096,

@@ -61,7 +61,8 @@ class ProviderRegistry:
         module_path, class_name = dotted.rsplit(".", 1)
         module = importlib.import_module(module_path)
         cls = getattr(module, class_name)
-        return cls(config)
+        instance: BaseLLMProvider = cls(config)
+        return instance
 
     async def close_all(self) -> None:
         """Close all cached provider instances."""

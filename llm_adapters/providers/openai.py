@@ -37,8 +37,8 @@ class OpenAIProvider(BaseLLMProvider):
             },
         )
 
-    def _build_payload(self, request: ChatRequest) -> dict:
-        payload: dict = {
+    def _build_payload(self, request: ChatRequest) -> dict[str, object]:
+        payload: dict[str, object] = {
             "model": request.model,
             "messages": [{"role": m.role.value, "content": m.content} for m in request.messages],
             "stream": request.stream,

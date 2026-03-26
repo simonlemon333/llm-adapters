@@ -6,7 +6,14 @@ API docs: https://platform.deepseek.com/api-docs
 
 from __future__ import annotations
 
+import httpx
+
 from llm_adapters.config import ProviderConfig
+from llm_adapters.exceptions import (
+    AuthenticationError,
+    ProviderError,
+    RateLimitError,
+)
 from llm_adapters.providers.openai import OpenAIProvider
 
 
@@ -19,15 +26,9 @@ class DeepSeekProvider(OpenAIProvider):
         super().__init__(config)
         # Override error messages to say "DeepSeek" instead of "OpenAI"
 
-    def _check_error(self, resp):  # type: ignore[override]
+    def _check_error(self, resp: httpx.Response) -> None:
         if resp.status_code < 400:
             return
-        from llm_adapters.exceptions import (
-            AuthenticationError,
-            ProviderError,
-            RateLimitError,
-        )
-
         if resp.status_code == 401:
             raise AuthenticationError(
                 "Invalid DeepSeek API key", provider=self.name, status_code=401

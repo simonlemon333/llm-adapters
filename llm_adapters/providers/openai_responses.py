@@ -37,9 +37,9 @@ class OpenAIResponsesProvider(BaseLLMProvider):
             },
         )
 
-    def _build_input(self, request: ChatRequest) -> list[dict]:
+    def _build_input(self, request: ChatRequest) -> list[dict[str, str]]:
         """Convert unified messages to Responses API input format."""
-        items: list[dict] = []
+        items: list[dict[str, str]] = []
         for m in request.messages:
             if m.role == Role.SYSTEM:
                 # System messages become developer role in Responses API
@@ -54,8 +54,8 @@ class OpenAIResponsesProvider(BaseLLMProvider):
                 })
         return items
 
-    def _build_payload(self, request: ChatRequest, stream: bool = False) -> dict:
-        payload: dict = {
+    def _build_payload(self, request: ChatRequest, stream: bool = False) -> dict[str, object]:
+        payload: dict[str, object] = {
             "model": request.model,
             "input": self._build_input(request),
             "stream": stream,
@@ -70,15 +70,17 @@ class OpenAIResponsesProvider(BaseLLMProvider):
             payload["stop"] = request.stop
         return payload
 
-    def _extract_text(self, data: dict) -> str:
+    def _extract_text(self, data: dict[str, object]) -> str:
         """Extract text from Responses API output array."""
-        output = data.get("output", [])
+        from typing import Any, cast
+
+        output = cast(list[dict[str, Any]], data.get("output", []))
         parts: list[str] = []
         for item in output:
             if item.get("type") == "message":
                 for content in item.get("content", []):
                     if content.get("type") == "output_text":
-                        parts.append(content.get("text", ""))
+                        parts.append(str(content.get("text", "")))
         return "".join(parts)
 
     async def chat(self, request: ChatRequest) -> ChatResponse:

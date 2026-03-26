@@ -7,6 +7,7 @@ from collections.abc import AsyncIterator
 from llm_adapters.config import ProviderConfig
 from llm_adapters.exceptions import LLMError
 from llm_adapters.models import ChatRequest, ChatResponse, Message, Role, StreamDelta
+from llm_adapters.providers.base import BaseLLMProvider
 from llm_adapters.providers.registry import ProviderRegistry
 
 
@@ -58,7 +59,7 @@ class LLMClient:
                 result.append(Message(role=Role(m["role"]), content=m["content"]))
         return result
 
-    def _get_provider(self, provider_name: str):  # noqa: ANN202
+    def _get_provider(self, provider_name: str) -> BaseLLMProvider:
         config = self._provider_configs.get(provider_name)
         return self._registry.get(provider_name, config)
 
